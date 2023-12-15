@@ -18,16 +18,16 @@ class _SplashScreenState extends State<SplashScreen> {
   List<Map<String, String>> splashData = [
     {
       "text": "Dasturiga xush kelibsiz! Qani boshladik!",
-      "image": "assets/images/intro1.jpg"
+      "image": "assets/images/intro1.png"
     },
     {
       "text":
           "Yurtimiz bo'ylab! \nIstalgan joyda chaqiring",
-      "image": "assets/images/intro2.jpg"
+      "image": "assets/images/intro2.png"
     },
     {
       "text": "Sodda interfeys. \nBitta tugmani bosish orqali chaqiruv",
-      "image": "assets/images/intro3.jpg"
+      "image": "assets/images/intro3.png"
     },
   ];
   @override
@@ -80,9 +80,15 @@ class _SplashScreenState extends State<SplashScreen> {
                       ),
                       const Spacer(flex: 3),
                       ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          shape: StadiumBorder(),
+                          // elevation: 20,
+                          backgroundColor: kPrimaryColor,
+                          minimumSize: const Size.fromHeight(60),
+                        ),
                         onPressed: () {
                         },
-                        child: const Text("KIRISH"),
+                        child: const Text("KIRISH", style: TextStyle(color: Colors.white, fontSize: 18),),
                       ),
                       const Spacer(),
                     ],
