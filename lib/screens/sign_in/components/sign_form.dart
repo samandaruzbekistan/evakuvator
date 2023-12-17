@@ -74,9 +74,8 @@ class _SignFormState extends State<SignForm> {
             ),
           ),
           const SizedBox(height: 20),
-          TextFormField(
+          TextField(
             obscureText: true,
-            onSaved: (newValue) => password = newValue,
             onChanged: (value) {
               if (value.isNotEmpty) {
                 removeError(error: kPassNullError);
@@ -85,16 +84,7 @@ class _SignFormState extends State<SignForm> {
               }
               return;
             },
-            validator: (value) {
-              if (value!.isEmpty) {
-                addError(error: kPassNullError);
-                return "";
-              } else if (value.length < 8) {
-                addError(error: kShortPassError);
-                return "";
-              }
-              return null;
-            },
+
             decoration: const InputDecoration(
               labelText: "Password",
               hintText: "Enter your password",
@@ -131,6 +121,12 @@ class _SignFormState extends State<SignForm> {
           FormError(errors: errors),
           const SizedBox(height: 16),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: StadiumBorder(),
+              // elevation: 20,
+              backgroundColor: kPrimaryColor,
+              minimumSize: const Size.fromHeight(60),
+            ),
             onPressed: () {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
@@ -139,7 +135,8 @@ class _SignFormState extends State<SignForm> {
                 Navigator.pushNamed(context, LoginSuccessScreen.routeName);
               }
             },
-            child: const Text("Continue"),
+            child: const Text("KIRISH", style: TextStyle(color: Colors.white, fontSize: 18),),
+
           ),
         ],
       ),

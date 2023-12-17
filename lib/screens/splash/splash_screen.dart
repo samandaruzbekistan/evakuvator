@@ -1,8 +1,10 @@
+import 'package:evakuvator/firebase_api.dart';
 import 'package:flutter/material.dart';
 import 'package:evakuvator/controllers/api_controller.dart';
 import 'package:get/get.dart';
 import '../../constants.dart';
 
+import '../sign_in/sign_in_screen.dart';
 import 'components/splash_content.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -88,8 +90,10 @@ class _SplashScreenState extends State<SplashScreen> {
                           backgroundColor: kPrimaryColor,
                           minimumSize: const Size.fromHeight(60),
                         ),
-                        onPressed: () {
-                          api_controller.send();
+                        onPressed: () async {
+                          var t = await FirebaseApi().getFCMToken();
+                          print(t.toString());
+                          // Get.to(SignInScreen());
                         },
                         child: const Text("KIRISH", style: TextStyle(color: Colors.white, fontSize: 18),),
                       ),
