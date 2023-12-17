@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-
+import 'package:evakuvator/controllers/api_controller.dart';
+import 'package:get/get.dart';
 import '../../constants.dart';
 
 import 'components/splash_content.dart';
@@ -32,6 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
   ];
   @override
   Widget build(BuildContext context) {
+    final ApiController api_controller = Get.put(ApiController());
     return Scaffold(
       body: SafeArea(
         child: SizedBox(
@@ -87,6 +89,7 @@ class _SplashScreenState extends State<SplashScreen> {
                           minimumSize: const Size.fromHeight(60),
                         ),
                         onPressed: () {
+                          api_controller.send();
                         },
                         child: const Text("KIRISH", style: TextStyle(color: Colors.white, fontSize: 18),),
                       ),
