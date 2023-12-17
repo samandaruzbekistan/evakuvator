@@ -90,10 +90,8 @@ class _SplashScreenState extends State<SplashScreen> {
                           backgroundColor: kPrimaryColor,
                           minimumSize: const Size.fromHeight(60),
                         ),
-                        onPressed: () async {
-                          var t = await FirebaseApi().getFCMToken();
-                          print(t.toString());
-                          // Get.to(SignInScreen());
+                        onPressed: () {
+                          Get.to(SignInScreen());
                         },
                         child: const Text("KIRISH", style: TextStyle(color: Colors.white, fontSize: 18),),
                       ),

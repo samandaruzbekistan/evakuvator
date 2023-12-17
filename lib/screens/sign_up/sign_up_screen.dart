@@ -23,11 +23,11 @@ class SignUpScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
-                  const Text("Register Account", style: headingStyle),
-                  const Text(
-                    "Complete your details or continue \nwith social media",
-                    textAlign: TextAlign.center,
-                  ),
+                  const Text("Ro'yhatdan o'tish", style: headingStyle),
+                  // const Text(
+                  //   "Complete your details or continue \nwith social media",
+                  //   textAlign: TextAlign.center,
+                  // ),
                   const SizedBox(height: 16),
                   const SignUpForm(),
                   const SizedBox(height: 16),
