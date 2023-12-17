@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:evakuvator/controllers/api_controller.dart';
 import 'package:flutter/material.dart';
-
-import '../../../components/custom_surfix_icon.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:get/get.dart';
 import '../../../components/form_error.dart';
 import '../../../constants.dart';
 import '../../complete_profile/complete_profile_screen.dart';
@@ -26,13 +27,15 @@ class _SignUpFormState extends State<SignUpForm> {
   bool remember = false;
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
   late Size mediaSize;
   final List<String?> errors = [];
   List<Map<String, dynamic>> regions = [];
   List<DropdownMenuItem<String>> dropdownItems = [];
   String? selectedValue = null;
   String? selectedRegionName = null;
-  final random = Random();
+  bool isLoading = false;
+
 
   void fetchDataFromApi() {
     var headers = {
@@ -70,6 +73,11 @@ class _SignUpFormState extends State<SignUpForm> {
     });
   }
 
+  Map<String, dynamic> findRegionById(String id) {
+    Map<String, dynamic> region = regions.firstWhere((region) => region['_id'] == id, orElse: () => Map<String, dynamic>.from({}));
+    return region;
+  }
+
   void _toggle() {
     setState(() {
       isObscure = !isObscure;
@@ -83,13 +91,20 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+    final ApiController apiController = Get.put(ApiController());
     mediaSize = MediaQuery.of(context).size;
+    if(apiController.userFound.isTrue){
+      _internetError(context);
+    }
     return Form(
       key: _formKey,
       child: Column(
         children: [
+          _buildNameInputField(nameController),
+          const SizedBox(height: 20),
           _phoneInput(phoneController),
           const SizedBox(height: 20),
           _buildPasswordInputField(passwordController, isObscure),
@@ -112,15 +127,50 @@ class _SignUpFormState extends State<SignUpForm> {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                Navigator.pushNamed(context, CompleteProfileScreen.routeName);
+            style: ElevatedButton.styleFrom(
+              shape: StadiumBorder(),
+              // elevation: 20,
+              backgroundColor: kPrimaryColor,
+              minimumSize: const Size.fromHeight(60),
+            ),
+            onPressed: () async {
+              final connectivityResult = await (Connectivity().checkConnectivity());
+              if (phoneController.text.length == 9) {
+                if(selectedValue == null){
+                  _regionError(context);
+                }
+                else{
+                  if (passwordController.text.length > 7) {
+                    if (connectivityResult != ConnectivityResult.none) {
+                      var region_ = findRegionById(selectedValue!);
+                      setState(() {
+                        isLoading = true;
+                      });
+                      apiController.TempSaveUserData(name: nameController.text, phone: phoneController.text, password: passwordController.text, location_id: "${selectedValue}", location_name: "${region_['location']}");
+                    }
+                    else{
+                      _internetError(context);
+                    }
+                  }
+                  else{
+                    _passwordError(context);
+                  }
+                }
+              }
+              else{
+                _onBasicAlertPressedValidate(context);
               }
             },
-            child: const Text("Continue"),
+            child: Obx(() => apiController.isLoad.isTrue
+                ? const CircularProgressIndicator(
+              color: Colors.white,
+            )
+                : const Text(
+              "Ro'yhatdan o'tish",
+              style: TextStyle(color: Colors.white),
+            )),
           ),
+          Obx(() => apiController.userFound.isTrue ? Text("Foydalanuvchi mavjud", style: TextStyle(color: Colors.red),) : Text(""))
         ],
       ),
     );
@@ -166,6 +216,40 @@ class _SignUpFormState extends State<SignUpForm> {
       ),
     );
   }
+
+  Widget _buildNameInputField(TextEditingController controller,
+      {isPassword = false}) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: "Ism Familya",
+        suffixIcon: isPassword
+            ? Icon(Icons.remove_red_eye)
+            : Icon(Icons.account_circle_outlined),
+      ),
+      obscureText: isPassword,
+    );
+  }
+
+  _alert(context) {
+    Alert(
+      context: context,
+      type: AlertType.info,
+      title: "Xatolik!",
+      desc: "Telefon raqamni quidagicha kiriting:\nXX XXX XX XX",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "OK",
+            style: TextStyle(color: Colors.white, fontSize: 14),
+          ),
+          onPressed: () => Navigator.pop(context),
+          color: Colors.black,
+          radius: BorderRadius.circular(0.0),
+        ),
+      ],
+    ).show();
+  }
 }
 
 _onBasicAlertPressedValidate(context) {
@@ -173,7 +257,7 @@ _onBasicAlertPressedValidate(context) {
     context: context,
     type: AlertType.info,
     title: "Xatolik!",
-    desc: "Telefon raqamni quidagicha kiriting:\n998XXXXXXXXX",
+    desc: "Telefon raqamni quidagicha kiriting:\nXX XXX XX XX",
     buttons: [
       DialogButton(
         child: Text(
@@ -208,46 +292,6 @@ _internetError(context) {
   ).show();
 }
 
-_apiError(context) {
-  Alert(
-    context: context,
-    type: AlertType.error,
-    title: "Xatolik!",
-    desc: "API da nosozlik",
-    buttons: [
-      DialogButton(
-        child: Text(
-          "OK",
-          style: TextStyle(color: Colors.white, fontSize: 14),
-        ),
-        onPressed: () => Navigator.pop(context),
-        color: Colors.black,
-        radius: BorderRadius.circular(0.0),
-      ),
-    ],
-  ).show();
-}
-
-_loginError(context) {
-  Alert(
-    context: context,
-    type: AlertType.warning,
-    title: "Xatolik!",
-    desc: "Raqam ro'yhatdan o'tgan",
-    buttons: [
-      DialogButton(
-        child: Text(
-          "OK",
-          style: TextStyle(color: Colors.white, fontSize: 14),
-        ),
-        onPressed: () => Navigator.pop(context),
-        color: Colors.black,
-        radius: BorderRadius.circular(0.0),
-      ),
-    ],
-  ).show();
-}
-
 _passwordError(context) {
   Alert(
     context: context,
@@ -261,6 +305,48 @@ _passwordError(context) {
           style: TextStyle(color: Colors.white, fontSize: 14),
         ),
         onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
+}
+
+_regionError(context) {
+  Alert(
+    context: context,
+    type: AlertType.warning,
+    title: "Xatolik!",
+    desc: "Hudud tanlanmagan",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
+}
+
+_userError(context) {
+  Alert(
+    context: context,
+    type: AlertType.warning,
+    title: "Xatolik!",
+    desc: "Foydalanuvchi mavjud",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () {
+          Navigator.pop(context);
+        },
         color: Colors.black,
         radius: BorderRadius.circular(0.0),
       ),

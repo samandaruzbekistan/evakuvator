@@ -8,11 +8,14 @@ class SignInScreen extends StatelessWidget {
   static String routeName = "/sign_in";
 
   const SignInScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
+    Size mediaSize;
+    mediaSize = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign In"),
+        title: const Text("Kirish"),
       ),
       body: SafeArea(
         child: SizedBox(
@@ -23,17 +26,14 @@ class SignInScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const SizedBox(height: 16),
+                  Image.asset("assets/images/logo.png", width: mediaSize.width*0.5),
                   const Text(
-                    "Welcome Back",
+                    "EVAKUATOR",
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  const Text(
-                    "Sign in with your email and password  \nor continue with social media",
-                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
                   const SignForm(),

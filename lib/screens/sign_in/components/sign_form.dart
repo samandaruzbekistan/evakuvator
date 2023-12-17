@@ -1,8 +1,12 @@
+import 'package:evakuvator/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../../../components/custom_surfix_icon.dart';
 import '../../../components/form_error.dart';
 import '../../../constants.dart';
+import '../../../controllers/api_controller.dart';
 import '../../../helper/keyboard.dart';
 import '../../forgot_password/forgot_password_screen.dart';
 import '../../login_success/login_success_screen.dart';
@@ -17,55 +21,31 @@ class SignForm extends StatefulWidget {
 class _SignFormState extends State<SignForm> {
   final _formKey = GlobalKey<FormState>();
   TextEditingController phoneController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   late Size mediaSize;
   String? password;
   bool? remember = false;
   final List<String?> errors = [];
+  bool isObscure = true;
+  bool isLoading = false;
 
-  void addError({String? error}) {
-    if (!errors.contains(error)) {
-      setState(() {
-        errors.add(error);
-      });
-    }
-  }
-
-  void removeError({String? error}) {
-    if (errors.contains(error)) {
-      setState(() {
-        errors.remove(error);
-      });
-    }
+  void _toggle() {
+    setState(() {
+      isObscure = !isObscure;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     mediaSize = MediaQuery.of(context).size;
+    final ApiController apiController = Get.put(ApiController());
     return Form(
       key: _formKey,
       child: Column(
         children: [
           _phoneInput(phoneController),
           const SizedBox(height: 20),
-          TextField(
-            obscureText: true,
-            onChanged: (value) {
-              if (value.isNotEmpty) {
-                removeError(error: kPassNullError);
-              } else if (value.length >= 8) {
-                removeError(error: kShortPassError);
-              }
-              return;
-            },
-            decoration: const InputDecoration(
-              labelText: "Password",
-              hintText: "Enter your password",
-              // If  you are using latest version of flutter then lable text and hint text shown like this
-              // if you r using flutter less then 1.20.* then maybe this is not working properly
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              suffixIcon: CustomSurffixIcon(svgIcon: "assets/icons/Lock.svg"),
-            ),
-          ),
+          _buildPasswordInputField(passwordController, isObscure),
           const SizedBox(height: 20),
           Row(
             children: [
@@ -89,21 +69,52 @@ class _SignFormState extends State<SignForm> {
               backgroundColor: kPrimaryColor,
               minimumSize: const Size.fromHeight(60),
             ),
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _formKey.currentState!.save();
-                // if all are valid then go to success screen
-                KeyboardUtil.hideKeyboard(context);
-                Navigator.pushNamed(context, LoginSuccessScreen.routeName);
+            onPressed: () async {
+              setState(() {
+                isLoading = true;
+              });
+              var login = await apiController.Login(
+                  phoneController.text, passwordController.text);
+              if (login == 0) {
+                setState(() {
+                  isLoading = false;
+                });
+                _loginError(context);
+              }
+              else if(login == 1){
+                Get.offAll(HomeScreen());
               }
             },
-            child: const Text(
-              "KIRISH",
-              style: TextStyle(color: Colors.white, fontSize: 18),
-            ),
+            child: isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text(
+                    "Ro'yhatdan o'tish",
+                    style: TextStyle(color: Colors.white),
+                  ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPasswordInputField(TextEditingController controller, isObscure) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: "Parol",
+        suffixIcon: IconButton(
+          icon: Icon(
+            isObscure ? Icons.remove_red_eye : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _toggle();
+            });
+          },
+        ),
+      ),
+      obscureText: isObscure,
     );
   }
 
@@ -111,7 +122,9 @@ class _SignFormState extends State<SignForm> {
     final prefixText = "+998";
 
     final prefixStyle = TextStyle(
-        fontWeight: FontWeight.bold, fontSize: mediaSize.width * 0.04, color: Colors.black);
+        fontWeight: FontWeight.bold,
+        fontSize: mediaSize.width * 0.04,
+        color: Colors.black);
 
     return TextField(
       controller: controller,
@@ -124,4 +137,24 @@ class _SignFormState extends State<SignForm> {
       ),
     );
   }
+}
+
+_loginError(context) {
+  Alert(
+    context: context,
+    type: AlertType.warning,
+    title: "Xatolik!",
+    desc: "Login yoki parol xato!",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
 }
