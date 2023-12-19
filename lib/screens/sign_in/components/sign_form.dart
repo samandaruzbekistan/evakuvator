@@ -51,8 +51,9 @@ class _SignFormState extends State<SignForm> {
             children: [
               const Spacer(),
               GestureDetector(
-                onTap: () => Navigator.pushNamed(
-                    context, ForgotPasswordScreen.routeName),
+                onTap: () {
+                  Get.to(ForgotPasswordScreen());
+                },
                 child: const Text(
                   "Parolni unutdingizmi?",
                   style: TextStyle(decoration: TextDecoration.underline),
