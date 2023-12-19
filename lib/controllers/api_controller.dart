@@ -94,7 +94,7 @@ class ApiController {
     return -1;
   }
 
-  Future<void> checkCode(String code) async {
+  Future<int?> checkCode(String code) async {
     var kod = box.get('code');
     if(kod == code){
       var headers = {
@@ -121,10 +121,16 @@ class ApiController {
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
-
+      if(response.statusCode == 200){
+        box.put('phone', "${box.get("temp_phone")}");
+        box.put('name',"${box.get('temp_name')}");
+        box.put('region_name',"${box.get('temp_location_name')}");
+        box.put('region_id', "${box.get('temp_location_id')}");
+        return 1;
+      }
     }
     else{
-      print("else");
+      return 0;
     }
   }
 

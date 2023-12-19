@@ -1,5 +1,7 @@
+import 'package:evakuvator/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../../../constants.dart';
 import '../../../controllers/api_controller.dart';
@@ -21,6 +23,7 @@ class _OtpFormState extends State<OtpForm> {
   TextEditingController number2 = TextEditingController();
   TextEditingController number3 = TextEditingController();
   TextEditingController number4 = TextEditingController();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -113,14 +116,29 @@ class _OtpFormState extends State<OtpForm> {
                   },
                 ),
               ),
-              Obx(() => apiController.codeTrue.isTrue ? Text("Kod noto'g'ri", style: TextStyle(color: Colors.red),) : Text(""))
             ],
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.15),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              setState(() {
+                isLoading = true;
+              });
               var code = "${number1.text}${number2.text}${number3.text}${number4.text}";
-              apiController.checkCode(code);
+              var check_code = await apiController.checkCode(code);
+              print(check_code);
+              if(check_code == 1){
+                setState(() {
+                  isLoading = false;
+                });
+                Get.to(HomeScreen());
+              }
+              else{
+                setState(() {
+                  isLoading = false;
+                });
+                _codeError(context);
+              }
             },
             child: const Text("Continue"),
           ),
@@ -128,4 +146,25 @@ class _OtpFormState extends State<OtpForm> {
       ),
     );
   }
+}
+
+
+_codeError(context) {
+  Alert(
+    context: context,
+    type: AlertType.warning,
+    title: "Xatolik!",
+    desc: "Kod noto'g'ri",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
 }
