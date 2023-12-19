@@ -120,6 +120,12 @@ class _OtpFormState extends State<OtpForm> {
           ),
           SizedBox(height: MediaQuery.of(context).size.height * 0.15),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: StadiumBorder(),
+              // elevation: 20,
+              backgroundColor: kPrimaryColor,
+              minimumSize: const Size.fromHeight(60),
+            ),
             onPressed: () async {
               setState(() {
                 isLoading = true;
@@ -140,7 +146,12 @@ class _OtpFormState extends State<OtpForm> {
                 _codeError(context);
               }
             },
-            child: const Text("Continue"),
+            child: isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text(
+              "TEKSHIRISH",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
