@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:evakuvator/controllers/api_controller.dart';
+import 'package:evakuvator/screens/otp/otp_screen.dart';
+import 'package:evakuvator/screens/sign_in/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
@@ -36,7 +38,6 @@ class _SignUpFormState extends State<SignUpForm> {
   String? selectedRegionName = null;
   bool isLoading = false;
 
-
   void fetchDataFromApi() {
     var headers = {
       'Content-Type': 'application/json',
@@ -53,7 +54,7 @@ class _SignUpFormState extends State<SignUpForm> {
             headers: headers, body: body)
         .then((response) {
       if (response.statusCode == 200) {
-        var temp =json.decode(response.body);
+        var temp = json.decode(response.body);
         final List<Map<String, dynamic>> data =
             List<Map<String, dynamic>>.from(temp['messages']);
         setState(() {
@@ -74,7 +75,9 @@ class _SignUpFormState extends State<SignUpForm> {
   }
 
   Map<String, dynamic> findRegionById(String id) {
-    Map<String, dynamic> region = regions.firstWhere((region) => region['_id'] == id, orElse: () => Map<String, dynamic>.from({}));
+    Map<String, dynamic> region = regions.firstWhere(
+        (region) => region['_id'] == id,
+        orElse: () => Map<String, dynamic>.from({}));
     return region;
   }
 
@@ -90,15 +93,10 @@ class _SignUpFormState extends State<SignUpForm> {
     fetchDataFromApi();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final ApiController apiController = Get.put(ApiController());
     mediaSize = MediaQuery.of(context).size;
-    if(apiController.userFound.isTrue){
-      _internetError(context);
-    }
     return Form(
       key: _formKey,
       child: Column(
@@ -123,8 +121,7 @@ class _SignUpFormState extends State<SignUpForm> {
                       .toString();
                 });
               },
-              items: dropdownItems
-          ),
+              items: dropdownItems),
           const SizedBox(height: 20),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -134,43 +131,54 @@ class _SignUpFormState extends State<SignUpForm> {
               minimumSize: const Size.fromHeight(60),
             ),
             onPressed: () async {
-              final connectivityResult = await (Connectivity().checkConnectivity());
+              final connectivityResult =
+                  await (Connectivity().checkConnectivity());
               if (phoneController.text.length == 9) {
-                if(selectedValue == null){
+                if (selectedValue == null) {
                   _regionError(context);
-                }
-                else{
+                } else {
                   if (passwordController.text.length > 7) {
                     if (connectivityResult != ConnectivityResult.none) {
                       var region_ = findRegionById(selectedValue!);
                       setState(() {
                         isLoading = true;
                       });
-                      apiController.TempSaveUserData(name: nameController.text, phone: phoneController.text, password: passwordController.text, location_id: "${selectedValue}", location_name: "${region_['location']}");
-                    }
-                    else{
+                      var result = await apiController.TempSaveUserData(
+                          name: nameController.text,
+                          phone: phoneController.text,
+                          password: passwordController.text,
+                          location_id: "${selectedValue}",
+                          location_name: "${region_['location']}");
+                      setState(() {
+                        isLoading = false;
+                      });
+                      if(result == 0){
+                        _userError(context);
+                      }
+                      else if(result == -1){
+                        _internetError(context);
+                      }
+                      else if(result == 1){
+                        Get.to(OtpScreen());
+                      }
+                    } else {
                       _internetError(context);
                     }
-                  }
-                  else{
+                  } else {
                     _passwordError(context);
                   }
                 }
-              }
-              else{
+              } else {
                 _onBasicAlertPressedValidate(context);
               }
             },
-            child: Obx(() => apiController.isLoad.isTrue
-                ? const CircularProgressIndicator(
-              color: Colors.white,
-            )
+            child: isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
-              "Ro'yhatdan o'tish",
-              style: TextStyle(color: Colors.white),
-            )),
+                    "RO'YHATDAN O'TISH",
+                    style: TextStyle(color: Colors.white),
+                  ),
           ),
-          Obx(() => apiController.userFound.isTrue ? Text("Foydalanuvchi mavjud", style: TextStyle(color: Colors.red),) : Text(""))
         ],
       ),
     );
@@ -292,6 +300,26 @@ _internetError(context) {
   ).show();
 }
 
+_userError(context) {
+  Alert(
+    context: context,
+    type: AlertType.error,
+    title: "Xatolik!",
+    desc: "Foydalanuvchi mavjud",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Get.to(SignInScreen()),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
+}
+
 _passwordError(context) {
   Alert(
     context: context,
@@ -325,28 +353,6 @@ _regionError(context) {
           style: TextStyle(color: Colors.white, fontSize: 14),
         ),
         onPressed: () => Navigator.pop(context),
-        color: Colors.black,
-        radius: BorderRadius.circular(0.0),
-      ),
-    ],
-  ).show();
-}
-
-_userError(context) {
-  Alert(
-    context: context,
-    type: AlertType.warning,
-    title: "Xatolik!",
-    desc: "Foydalanuvchi mavjud",
-    buttons: [
-      DialogButton(
-        child: Text(
-          "OK",
-          style: TextStyle(color: Colors.white, fontSize: 14),
-        ),
-        onPressed: () {
-          Navigator.pop(context);
-        },
         color: Colors.black,
         radius: BorderRadius.circular(0.0),
       ),

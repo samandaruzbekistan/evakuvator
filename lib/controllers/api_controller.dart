@@ -20,7 +20,7 @@ class ApiController {
   var codeTrue = false.obs;
   var loginTrue = false.obs;
 
-  Future<void> TempSaveUserData(
+  Future<int?> TempSaveUserData(
       { required String name,
         required String phone,
         required String password,
@@ -78,15 +78,20 @@ class ApiController {
 
         http.StreamedResponse response = await request.send();
         if (response.statusCode == 200) {
-          Get.to(OtpScreen());
+          return 1;
         }
-
+        else{
+          return -1;
+        }
       }
       else{
-        isLoad.value = false;
-        userFound.value = true;
+        return 0;
       }
     }
+    else{
+      return -1;
+    }
+    return -1;
   }
 
   Future<void> checkCode(String code) async {
@@ -167,10 +172,11 @@ class ApiController {
           var res = await loginResponse.stream.bytesToString();
           Map valueMap = json.decode(res);
           if(valueMap['success'] == true){
-            box.put('phone', valueMap['phonenumber']);
-            box.put('name', valueMap['username']);
-            box.put('region_name', valueMap['location']);
-            box.put('region_id', valueMap['location_id']);
+            // print(valueMap);
+            // box.put('phone', valueMap['messages']['phonenumber']);
+            // box.put('name', valueMap['messages']['username']);
+            // box.put('region_name', valueMap['messages']['location']);
+            // box.put('region_id', valueMap['messages']['location_id']);
             return 1;
           }
           else{

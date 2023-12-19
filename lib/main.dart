@@ -35,6 +35,7 @@ class MyApp extends StatelessWidget {
     if(user != null){
       isReg = true;
     }
+    print(users.values);
     return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
