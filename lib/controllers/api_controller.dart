@@ -106,8 +106,8 @@ class ApiController {
       "params": {
         "method": "UpdatePassword",
         "body": {
-          "phonenumber": 975672009,
-          "newpassword": "123456789"
+          "phonenumber": phone,
+          "newpassword": password
         }
       }
     });
