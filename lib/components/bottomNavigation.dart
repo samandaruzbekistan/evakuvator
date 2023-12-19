@@ -1,31 +1,40 @@
 
 
 import 'package:evakuvator/constants.dart';
+import 'package:evakuvator/screens/home/home_screen.dart';
+import 'package:evakuvator/screens/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 
 class BottomNavigationCustom extends StatefulWidget {
-  const BottomNavigationCustom({Key? key, required int screenId}) : super(key: key);
-
+  const BottomNavigationCustom({Key? key, required this.screenId}) : super(key: key);
+  final int screenId;
   @override
   State<BottomNavigationCustom> createState() => _BottomNavigationCustomState();
+
 }
 
 class _BottomNavigationCustomState extends State<BottomNavigationCustom> {
-  int selectedIndex = 0;
-  late PageController controller;
+  late int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
+
+    selectedIndex = widget.screenId;
     return SlidingClippedNavBar.colorful(
       backgroundColor: Colors.white,
       onButtonPressed: (index) {
         setState(() {
           selectedIndex = index;
         });
-        controller.animateToPage(selectedIndex,
-            duration: const Duration(milliseconds: 400),
-            curve: Curves.easeOutQuad);
+        if(index == 2){
+          Get.to(ProfileScreen());
+        }
+        else if(index == 0){
+          Get.offAll(HomeScreen());
+        }
+
       },
       iconSize: 30,
       selectedIndex: selectedIndex,
