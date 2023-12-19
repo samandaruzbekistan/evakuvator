@@ -1,8 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:evakuvator/screens/forgot_password/new_password.dart';
-import 'package:evakuvator/screens/otp/reset_password_otp.dart';
+import 'package:evakuvator/screens/sign_in/sign_in_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hive/hive.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import '../../../components/custom_surfix_icon.dart';
@@ -11,21 +11,27 @@ import '../../../components/no_account_text.dart';
 import '../../../constants.dart';
 import '../../../controllers/api_controller.dart';
 
-class ForgotPassForm extends StatefulWidget {
-  const ForgotPassForm({super.key});
+class NewPassForm extends StatefulWidget {
+  const NewPassForm({super.key});
 
   @override
-  _ForgotPassFormState createState() => _ForgotPassFormState();
+  _NewPassFormState createState() => _NewPassFormState();
 }
 
-class _ForgotPassFormState extends State<ForgotPassForm> {
+class _NewPassFormState extends State<NewPassForm> {
   late Size mediaSize;
   final _formKey = GlobalKey<FormState>();
-  TextEditingController phoneController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   List<String> errors = [];
   String? email;
   bool isLoading = false;
+  bool isObscure = false;
 
+  void _toggle() {
+    setState(() {
+      isObscure = !isObscure;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +41,7 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
       key: _formKey,
       child: Column(
         children: [
-          _phoneInput(phoneController),
+          _buildPasswordInputField(passwordController,isObscure),
           const SizedBox(height: 8),
           FormError(errors: errors),
           const SizedBox(height: 8),
@@ -49,48 +55,55 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
             onPressed: () async {
               final connectivityResult =
               await (Connectivity().checkConnectivity());
-              if (phoneController.text.length == 9) {
+              if (passwordController.text.length > 7) {
                 if (connectivityResult != ConnectivityResult.none){
                   setState(() {
                     isLoading = true;
                   });
-                  var checkUser = await apiController.CheckUser(phone: "${phoneController.text}");
-                  if(checkUser == 0){
-                    setState(() {
-                      isLoading = true;
-                    });
-                    _userError(context);
+                  if(8 == 2){
+                  // shunchaki charchagandan yozildi
                   }
                   else{
                     setState(() {
-                      isLoading = true;
+                      isLoading = false;
                     });
-                    var sendSms = await apiController.sendCodeSms(phone:"${phoneController.text}");
-                    if(sendSms == 1){
-                      Get.to(ResetOtp());
+                    var box = Hive.box('users');
+                    print("${passwordController.text}");
+                    var updatePassword = await apiController.UpdatePassword(phone:"${box.get("temp_phone")}", password: "${passwordController.text}");
+                    if(updatePassword == 1){
+                      setState(() {
+                        isLoading = false;
+                      });
+                      _successfulyUpdated(context);
                     }
                     else{
+                      setState(() {
+                        isLoading = false;
+                      });
                       _internetError(context);
                     }
                   }
                 }
                 else{
                   setState(() {
-                    isLoading = true;
+                    isLoading = false;
                   });
                   _internetError(context);
                 }
               }
               else{
+                setState(() {
+                  isLoading = false;
+                });
                 _onBasicAlertPressedValidate(context);
               }
             },
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                "TEKSHIRISH",
-                style: TextStyle(color: Colors.white),
-              ),
+            child: isLoading
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text(
+              "TEKSHIRISH",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
           const SizedBox(height: 16),
           const NoAccountText(),
@@ -99,24 +112,24 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
     );
   }
 
-  Widget _phoneInput(TextEditingController controller) {
-    final prefixText = "+998";
-
-    final prefixStyle = TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: mediaSize.width * 0.04,
-        color: Colors.black);
-
+  Widget _buildPasswordInputField(TextEditingController controller, isObscure) {
     return TextField(
       controller: controller,
-      keyboardType: TextInputType.number,
-      maxLength: 9,
       decoration: InputDecoration(
-        labelText: "Telefon",
-        prefixText: prefixText,
-        prefixStyle: prefixStyle,
-        suffixIcon: Icon(Icons.phone),
+        labelText: "Parol",
+        suffixIcon: IconButton(
+          icon: Icon(
+            isObscure ? Icons.remove_red_eye : Icons.visibility_off,
+            color: Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _toggle();
+            });
+          },
+        ),
       ),
+      obscureText: isObscure,
     );
   }
 }
@@ -175,6 +188,27 @@ _onBasicAlertPressedValidate(context) {
           style: TextStyle(color: Colors.white, fontSize: 14),
         ),
         onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
+}
+
+
+_successfulyUpdated(context) {
+  Alert(
+    context: context,
+    type: AlertType.success,
+    title: "Xabar!",
+    desc: "Sizning parolingiz yangilandi",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Get.offAll(SignInScreen()),
         color: Colors.black,
         radius: BorderRadius.circular(0.0),
       ),

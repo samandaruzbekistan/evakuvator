@@ -94,6 +94,42 @@ class ApiController {
     return -1;
   }
 
+  Future<int> UpdatePassword({required String phone, required String password}) async {
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
+    };
+    var request = http.Request('POST', Uri.parse('http://94.241.168.135:3000/api/v1/mobile'));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "apiversion": "1.0",
+      "params": {
+        "method": "UpdatePassword",
+        "body": {
+          "phonenumber": 975672009,
+          "newpassword": "123456789"
+        }
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    if(response.statusCode == 200){
+      var res = await response.stream.bytesToString();
+      Map valueMap = json.decode(res);
+      print(valueMap);
+      if(valueMap['success'] == true){
+        return 1;
+      }
+      else{
+        return 0;
+      }
+    }
+    else{
+      return 0;
+    }
+  }
+
   Future<int?> checkCode(String code) async {
     var kod = box.get('code');
     if(kod == code){
@@ -197,13 +233,71 @@ class ApiController {
     return 0;
   }
 
-  void falseLoading(){
-    isLoad.value = false;
+  Future<int?> CheckUser({required String phone}) async {
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
+    };
+    var request = http.Request('POST', Uri.parse("http://94.241.168.135:3000/api/v1/mobile"));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "apiversion": "1.0",
+      "params": {
+        "method": "CheckUsers",
+        "body": {
+          "phonenumber": phone
+        }
+      }
+    });
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    if(response.statusCode == 200){
+      var res = await response.stream.bytesToString();
+      Map valueMap = json.decode(res);
+      if(valueMap['success'] == false){
+        return 0;
+      }
+      else{
+        return 1;
+      }
+    }
+    else{
+      return 0;
+    }
   }
 
-  void falseUserFound(){
-    userFound.value = false;
+  Future<int> sendCodeSms({required String phone}) async {
+    final fourDigitNumber = random.nextInt(9000) + 1000;
+    box.put("code","${fourDigitNumber}");
+    box.put("temp_phone",phone);
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
+    };
+    var request = http.Request('POST', Uri.parse("http://94.241.168.135:3000/api/v1/mobile"));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "apiversion": "1.0",
+      "params": {
+        "method": "SendSms",
+        "body": {
+          "phonenumber": phone,
+          "smscode": fourDigitNumber
+        }
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      return 1;
+    }
+    else{
+      return 0;
+    }
   }
+
+
 
   Future<void> send() async {
     final jwt = JWT(
@@ -231,3 +325,5 @@ class ApiController {
     }
   }
 }
+
+
