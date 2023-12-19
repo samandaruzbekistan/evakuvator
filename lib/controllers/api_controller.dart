@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:evakuvator/firebase_api.dart';
+import 'package:evakuvator/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
@@ -17,15 +18,7 @@ class ApiController {
   var isLoad = false.obs;
   var userFound = false.obs;
   var codeTrue = false.obs;
-
-  void Register(
-      { required String name,
-        required String phone,
-        required String password,
-        required location_id}) {
-
-
-  }
+  var loginTrue = false.obs;
 
   Future<void> TempSaveUserData(
       { required String name,
@@ -104,7 +97,6 @@ class ApiController {
         'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
       };
       var token = await FirebaseApi().getFCMToken();
-      print(token);
       var request = http.Request('POST', Uri.parse('http://94.241.168.135:3000/api/v1/mobile'));
       request.body = json.encode({
         "jsonrpc": "2.0",
@@ -131,6 +123,68 @@ class ApiController {
     }
   }
 
+  Future<int?> Login(String phone, String password) async {
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
+    };
+    var request = http.Request('POST', Uri.parse("http://94.241.168.135:3000/api/v1/mobile"));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "apiversion": "1.0",
+      "params": {
+        "method": "CheckUsers",
+        "body": {
+          "phonenumber": phone
+        }
+      }
+    });
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    if(response.statusCode == 200){
+      var res = await response.stream.bytesToString();
+      Map valueMap = json.decode(res);
+      if(valueMap['success'] == false){
+        return 0;
+      }
+      else{
+        var loginRequest = http.Request('POST', Uri.parse('http://94.241.168.135:3000/api/v1/mobile'));
+        loginRequest.body = json.encode({
+          "jsonrpc": "2.0",
+          "apiversion": "1.0",
+          "params": {
+            "method": "Login",
+            "body": {
+              "phonenumber": "${phone}",
+              "password": "${password}"
+            }
+          }
+        });
+        loginRequest.headers.addAll(headers);
+
+        http.StreamedResponse loginResponse = await loginRequest.send();
+        if(loginResponse.statusCode == 200){
+          var res = await loginResponse.stream.bytesToString();
+          Map valueMap = json.decode(res);
+          if(valueMap['success'] == true){
+            box.put('phone', valueMap['phonenumber']);
+            box.put('name', valueMap['username']);
+            box.put('region_name', valueMap['location']);
+            box.put('region_id', valueMap['location_id']);
+            return 1;
+          }
+          else{
+            return 0;
+          }
+        }
+      }
+    }
+    else{
+      return 0;
+    }
+    return 0;
+  }
+
   void falseLoading(){
     isLoad.value = false;
   }
@@ -141,7 +195,7 @@ class ApiController {
 
   Future<void> send() async {
     final jwt = JWT(
-        // Payload
+      // Payload
         {
           'id': 123,
           'server': {

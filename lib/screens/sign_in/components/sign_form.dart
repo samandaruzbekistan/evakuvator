@@ -88,9 +88,9 @@ class _SignFormState extends State<SignForm> {
             child: isLoading
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
-                    "KIRISH",
-                    style: TextStyle(color: Colors.white),
-                  ),
+              "Ro'yhatdan o'tish",
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
