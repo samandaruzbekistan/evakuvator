@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:evakuvator/screens/home/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -71,19 +72,31 @@ class _SignFormState extends State<SignForm> {
               minimumSize: const Size.fromHeight(60),
             ),
             onPressed: () async {
-              setState(() {
-                isLoading = true;
-              });
-              var login = await apiController.Login(
-                  phoneController.text, passwordController.text);
-              if (login == 0) {
-                setState(() {
-                  isLoading = false;
-                });
-                _loginError(context);
+              final connectivityResult =
+              await (Connectivity().checkConnectivity());
+              if (phoneController.text.length == 9){
+                if (passwordController.text.length > 7){
+                  setState(() {
+                    isLoading = true;
+                  });
+                  var login = await apiController.Login(
+                      phoneController.text, passwordController.text);
+                  if (login == 0) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                    _loginError(context);
+                  }
+                  else if(login == 1){
+                    Get.offAll(HomeScreen());
+                  }
+                }
+                else{
+                  _passwordError(context);
+                }
               }
-              else if(login == 1){
-                Get.offAll(HomeScreen());
+              else{
+                _onBasicAlertPressedValidate(context);
               }
             },
             child: isLoading
@@ -147,6 +160,68 @@ _loginError(context) {
     type: AlertType.warning,
     title: "Xatolik!",
     desc: "Login yoki parol xato!",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
+}
+
+
+
+_onBasicAlertPressedValidate(context) {
+  Alert(
+    context: context,
+    type: AlertType.info,
+    title: "Xatolik!",
+    desc: "Telefon raqamni quidagicha kiriting:\nXX XXX XX XX",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
+}
+
+_internetError(context) {
+  Alert(
+    context: context,
+    type: AlertType.error,
+    title: "Xatolik!",
+    desc: "Internetga ulanmagansiz",
+    buttons: [
+      DialogButton(
+        child: Text(
+          "OK",
+          style: TextStyle(color: Colors.white, fontSize: 14),
+        ),
+        onPressed: () => Navigator.pop(context),
+        color: Colors.black,
+        radius: BorderRadius.circular(0.0),
+      ),
+    ],
+  ).show();
+}
+
+_passwordError(context) {
+  Alert(
+    context: context,
+    type: AlertType.warning,
+    title: "Xatolik!",
+    desc: "Parol kamida 8 ta belgi bo'lishi kerak",
     buttons: [
       DialogButton(
         child: Text(

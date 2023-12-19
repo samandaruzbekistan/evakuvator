@@ -18,6 +18,9 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
   TextEditingController phoneController = TextEditingController();
   List<String> errors = [];
   String? email;
+  bool isLoading = false;
+
+
   @override
   Widget build(BuildContext context) {
     mediaSize = MediaQuery.of(context).size;
@@ -30,12 +33,23 @@ class _ForgotPassFormState extends State<ForgotPassForm> {
           FormError(errors: errors),
           const SizedBox(height: 8),
           ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              shape: StadiumBorder(),
+              // elevation: 20,
+              backgroundColor: kPrimaryColor,
+              minimumSize: const Size.fromHeight(60),
+            ),
             onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                // Do what you want to do
-              }
+              setState(() {
+                isLoading = true;
+              });
             },
-            child: const Text("Continue"),
+              child: isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                "TEKSHIRISH",
+                style: TextStyle(color: Colors.white),
+              ),
           ),
           const SizedBox(height: 16),
           const NoAccountText(),
