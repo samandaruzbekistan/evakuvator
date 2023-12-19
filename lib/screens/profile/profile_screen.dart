@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 
 import 'components/profile_menu.dart';
-import 'components/profile_pic.dart';
 
 class ProfileScreen extends StatelessWidget {
   static String routeName = "/profile";
