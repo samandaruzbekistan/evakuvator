@@ -216,6 +216,7 @@ class _SignUpFormState extends State<SignUpForm> {
     return TextField(
       controller: controller,
       keyboardType: TextInputType.number,
+      maxLength: 9,
       decoration: InputDecoration(
         labelText: "Telefon",
         prefixText: prefixText,

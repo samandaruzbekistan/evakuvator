@@ -10,7 +10,7 @@ class ForgotPasswordScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Forgot Password"),
+        title: const Text("Parolni tiklash"),
       ),
       body: const SizedBox(
         width: double.infinity,
@@ -21,7 +21,7 @@ class ForgotPasswordScreen extends StatelessWidget {
               children: [
                 SizedBox(height: 16),
                 Text(
-                  "Forgot Password",
+                  "Telefon raqam tasdiqlash",
                   style: TextStyle(
                     fontSize: 24,
                     color: Colors.black,
@@ -29,7 +29,7 @@ class ForgotPasswordScreen extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "Please enter your email and we will send \nyou a link to return to your account",
+                  "Parolingizni tiklash uchun\nro'yhatdan o'tgan telefon raqamingizni kiriting",
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 32),

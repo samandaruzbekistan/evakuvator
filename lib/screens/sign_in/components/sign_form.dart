@@ -129,6 +129,7 @@ class _SignFormState extends State<SignForm> {
 
     return TextField(
       controller: controller,
+      maxLength: 9,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: "Telefon",
