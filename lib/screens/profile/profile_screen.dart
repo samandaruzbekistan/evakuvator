@@ -22,7 +22,6 @@ class ProfileScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           children: [
-            // const ProfilePic(),
             Image.asset("assets/images/logo.png", width: mediaSize.width*0.4,),
             const SizedBox(height: 20),
             ProfileMenu(
