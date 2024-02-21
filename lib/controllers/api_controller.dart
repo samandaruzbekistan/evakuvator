@@ -94,6 +94,55 @@ class ApiController {
     return -1;
   }
 
+  Future<int> newOrder({
+    required String category,
+    required String lat,
+    required String long,
+    required String description,
+  }) async {
+    var headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
+    };
+    var request = http.Request('POST', Uri.parse('http://94.241.168.135:6000/ypx/api/v1/mobile'));
+    request.body = json.encode({
+      "jsonrpc": "2.0",
+      "apiversion": "1.0",
+      "params": {
+        "method": "GetOrder",
+        "body": {
+          "category": category,
+          "userphone": "${box.get('phone')}",
+          "driverphone": 1,
+          "ypx" : false,
+          "lat": lat,
+          "long": long,
+          "regionid": "${box.get('region_id')}",
+          "region": "${box.get('region_name')}",
+          "description": description
+        }
+      }
+    });
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      var res = await response.stream.bytesToString();
+      Map valueMap = json.decode(res);
+      if (valueMap['success'] == true){
+        return 1;
+      }
+      else if(valueMap['success'] == false){
+        return -1;
+      }
+    }
+    else {
+      return 0;
+    }
+    return 0;
+  }
+
+
   Future<int> UpdatePassword({required String phone, required String password}) async {
     var headers = {
       'Content-Type': 'application/json',
@@ -219,6 +268,27 @@ class ApiController {
             box.put('name', valueMap['messages']['username']);
             box.put('region_name', valueMap['messages']['location']);
             box.put('region_id', valueMap['messages']['location_id']);
+            var request_fcm = http.Request('POST', Uri.parse('http://94.241.168.135:3000/api/v1/mobile'));
+            var fcm;
+            fcm = await FirebaseApi().getFCMToken();
+            request_fcm.body = json.encode({
+              "jsonrpc": "2.0",
+              "apiversion": "1.0",
+              "params": {
+                "method": "FcmUpdate",
+                "body": {
+                  "phonenumber": valueMap['messages']['phonenumber'],
+                  "fcmtoken": fcm
+                }
+              }
+            });
+            request_fcm.headers.addAll(headers);
+
+            http.StreamedResponse response = await request_fcm.send();
+
+            var res = await response.stream.bytesToString();
+            Map valueMap2 = json.decode(res);
+            // print(valueMap2);
             return 1;
           }
           else{

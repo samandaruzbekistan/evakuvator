@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:evakuvator/screens/my_orders/my_orders_screen.dart';
+import '../../constants.dart';
 import '../init_screen.dart';
 
 class LoginSuccessScreen extends StatelessWidget {
@@ -10,18 +13,20 @@ class LoginSuccessScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: const SizedBox(),
-        title: const Text("Login Success"),
+        // title: const Text("Login Success"),
       ),
       body: Column(
         children: [
-          const SizedBox(height: 16),
-          Image.asset(
-            "assets/images/success.png",
-            height: MediaQuery.of(context).size.height * 0.4, //40%
+          const SizedBox(height: 25),
+          Center(
+            child: Image.asset(
+              "assets/images/sc.png",
+              height: MediaQuery.of(context).size.width * 0.8, //40%
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 30),
           const Text(
-            "Login Success",
+            "Chaqiruv qabul qilindi",
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
@@ -32,10 +37,16 @@ class LoginSuccessScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: StadiumBorder(),
+                // elevation: 20,
+                backgroundColor: kPrimaryColor,
+                minimumSize: const Size.fromHeight(60),
+              ),
               onPressed: () {
-                Navigator.pushNamed(context, InitScreen.routeName);
+                Get.off(MyOrders());
               },
-              child: const Text("Back to home"),
+              child: const Text("OK", style: TextStyle(color: Colors.white, fontSize: 20),),
             ),
           ),
           const Spacer(),

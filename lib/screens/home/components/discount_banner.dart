@@ -22,9 +22,9 @@ class DiscountBanner extends StatelessWidget {
         TextSpan(
           style: TextStyle(color: Colors.white),
           children: [
-            TextSpan(text: "A Summer Surpise\n"),
+            TextSpan(text: "Bo'glanish uchun:\n"),
             TextSpan(
-              text: "Cashback 20%",
+              text: "+998 90 863 14 04",
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
