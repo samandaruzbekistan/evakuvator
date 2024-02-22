@@ -2,6 +2,7 @@
 
 import 'package:evakuvator/constants.dart';
 import 'package:evakuvator/screens/home/home_screen.dart';
+import 'package:evakuvator/screens/my_orders/my_orders_screen.dart';
 import 'package:evakuvator/screens/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,6 +34,9 @@ class _BottomNavigationCustomState extends State<BottomNavigationCustom> {
         }
         else if(index == 0){
           Get.offAll(HomeScreen());
+        }
+        else if(index == 1){
+          Get.offAll(MyOrders());
         }
 
       },

@@ -104,7 +104,7 @@ class ApiController {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
     };
-    var request = http.Request('POST', Uri.parse('http://94.241.168.135:6000/ypx/api/v1/mobile'));
+    var request = http.Request('POST', Uri.parse('http://94.241.168.135:3000/api/v1/mobile'));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "apiversion": "1.0",
@@ -114,7 +114,6 @@ class ApiController {
           "category": category,
           "userphone": "${box.get('phone')}",
           "driverphone": 1,
-          "ypx" : false,
           "lat": lat,
           "long": long,
           "regionid": "${box.get('region_id')}",
@@ -137,7 +136,7 @@ class ApiController {
       }
     }
     else {
-      return 0;
+      return -1;
     }
     return 0;
   }

@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
     }
     print(users.values);
     return GetMaterialApp(
-      title: 'Flutter Demo',
+      title: 'YPX evakuator',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFFFF7643)),
         useMaterial3: true,

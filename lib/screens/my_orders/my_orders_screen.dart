@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
@@ -27,12 +27,12 @@ class _MyOrdersState extends State<MyOrders> {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
     };
-    var request = http.Request('POST', Uri.parse('http://94.241.168.135:6000/ypx/api/v1/mobile'));
+    var request = http.Request('POST', Uri.parse('http://94.241.168.135:3000/api/v1/mobile'));
     request.body = json.encode({
       "jsonrpc": "2.0",
       "apiversion": "1.0",
       "params": {
-        "method": "History",
+        "method": "UsersHistory",
         "body": {
           "phonenumber": '${box.get('phone')}'
         }
@@ -45,6 +45,7 @@ class _MyOrdersState extends State<MyOrders> {
       http.StreamedResponse response = await request.send();
       if (response.statusCode == 200) {
         var res = await response.stream.bytesToString();
+        // print(res);
         if (res == "Taqdim etilgan ID uchun hech qanday ma'lumot topilmadi") {
           status = 2;
         } else {
@@ -131,14 +132,14 @@ class _MyOrdersState extends State<MyOrders> {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer eXB4ZXZha3VhdG9ycGFzc3dvcmQ='
                       };
-                      var request = http.Request('POST', Uri.parse('http://94.241.168.135:6000/ypx/api/v1/mobile'));
+                      var request = http.Request('POST', Uri.parse('http://94.241.168.135:9000/api/v1/mobile'));
                       request.body = json.encode({
                         "jsonrpc": "2.0",
                         "apiversion": "1.0",
                         "params": {
                           "method": "DriverData",
                           "body": {
-                            "id": "${item['_id']}"
+                            "_id": "${item['driverphone']}"
                           }
                         }
                       });
@@ -153,16 +154,17 @@ class _MyOrdersState extends State<MyOrders> {
                       // http.StreamedResponse response = await request.send();
                       var res2 = await response.stream.bytesToString();
                       Map valueMap2 = json.decode(res2);
+                      print(valueMap2);
                       if (response.statusCode == 200) {
                         print(valueMap2);
-                        _okWorker(context, "${valueMap2['messages']['drivername']}",
-                            "${valueMap2['messages']['driverphone']}","${valueMap2['messages']['carnumber']}");
+                        _okWorker(context, "${valueMap2['data']['username']}",
+                            "${valueMap2['data']['phonenumber']}","${valueMap2['data']['carnumber']}");
                       }
                     }
                   },
                   child: ListTile(
                       title: Text(item['category'] ?? ''),
-                      subtitle: _buildStatus(item['status']),
+                      subtitle: Text("${formatDateTime(item['updatedAt'])}" ?? ''),
                       leading: item['category'] != null ? _buildLeadingIcon(item['category']) : _buildLeadingIcon("YTH"),
                       trailing: _buildIcon(item['status'])),
                 );
@@ -222,7 +224,11 @@ class _MyOrdersState extends State<MyOrders> {
 
 }
 
-
+String formatDateTime(String timestamp) {
+  DateTime dateTime = DateTime.parse(timestamp);
+  String formattedDateTime = DateFormat('y.MM.dd H:m').format(dateTime);
+  return formattedDateTime;
+}
 
 _findWorker(context) {
   Alert(
